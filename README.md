@@ -80,8 +80,8 @@ Luego de Transaction se debe utilizar formulario provisto por Todopago, este se 
 Para funcionar requiere ingresar en el atributo "publicKey" el **publicRequestKey** que respondió el servicio "Transaction".
 
 ##### Endpoints:
-Ambientes desarrollo: https://forms.integration.todopago.com.ar/resources/TPBSAForm.js
-Ambiente Produccion: https://forms.todopago.com.ar/resources/TPBSAForm.min.js
++ Ambientes desarrollo: https://forms.integration.todopago.com.ar/resources/TPBSAForm.js
++ Ambiente Produccion: https://forms.todopago.com.ar/resources/TPBSAForm.min.js
 
 #####  Ejemplo de implementacion
 ```html
