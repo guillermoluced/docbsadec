@@ -255,46 +255,37 @@ Registra la fiscalización de una transacción. El método retorna el objeto Not
 
 ```C#
 BvgConnector connector = new BvgConnector(endpoint, headers);
+	Dictionary<string, Object> generalData = new Dictionary<string, Object>();
+	generalData.Add(ElementNames.BVG_MERCHANT, "41702");
+	generalData.Add(ElementNames.BVG_SECURITY, "TODOPAGO 8A891C0676A25FBF052D1C2FFBC82DEE");
+	generalData.Add(ElementNames.BVG_REMOTE_IP_ADDRESS, "192.168.11.87");
+	generalData.Add(ElementNames.BVG_PUBLIC_REQUEST_KEY, "f50208ea-be00-4519-bf85-035e2733d09e");
+	generalData.Add(ElementNames.BVG_OPERATION_NAME, "Compra");
 
-Dictionary<string, Object> generalData = new Dictionary<string, Object>();
-    generalData.Add(ElementNames.BSA_MERCHANT, "41702");
-    generalData.Add(ElementNames.BSA_SECURITY, "TODOPAGO 8A891C0676A25FBF052D1C2FFBC82DEE");
-    generalData.Add(ElementNames.BSA_OPERATION_DATE_TIME, "20170308041300");
-    generalData.Add(ElementNames.BSA_REMOTE_IP_ADDRESS, "127.0.0.1");
+	Dictionary<string, Object> operationData = new Dictionary<string, Object>();
+	operationData.Add(ElementNames.BVG_RESULT_CODE_MEDIOPAGO, "-1");
+	operationData.Add(ElementNames.BVG_RESULT_CODE_GATEWAY, "-1");
+	operationData.Add(ElementNames.BVG_ID_GATEWAY, "8");
+	operationData.Add(ElementNames.BVG_RESULT_MESSAGE, "Aprobada");
+	operationData.Add(ElementNames.BVG_OPERATION_DATE_TIME, "201607040857364");
+	operationData.Add(ElementNames.BVG_TICKET_MUNBER, "7866463542424");
+	operationData.Add(ElementNames.BVG_CODIGO_AUTORIZATION, "455422446756567");
+	operationData.Add(ElementNames.BVG_CURRENCY_CODE, "032");
+	operationData.Add(ElementNames.BVG_OPERATION_ID, "1234");
+	operationData.Add(ElementNames.BVG_CONCEPT, "compra");
+	operationData.Add(ElementNames.BVG_AMOUNT, "10,99");
+	operationData.Add(ElementNames.BVG_FACILITIES_PAYMENT, "03");
 
-    Dictionary<string, Object> operationData = new Dictionary<string, Object>();
-    operationData.Add(ElementNames.BSA_OPERATION_TYPE, "Compra");
-    operationData.Add(ElementNames.BSA_OPERATION_ID, "12345");
-    operationData.Add(ElementNames.BSA_CURRENCY_CODE, "032");
-    operationData.Add(ElementNames.BSA_CONCEPT, "compra");
-    operationData.Add(ElementNames.BSA_AMOUNT, "10,99");
+	Dictionary<string, Object> tokenizationData = new Dictionary<string, Object>();
+	tokenizationData.Add(ElementNames.BVG_PUBLIC_TOKENIZATION_FIELD, "sydguyt3e862t76ierh76487638rhkh7");
+	tokenizationData.Add(ElementNames.BVG_CREDENTIAL_MASK, "4510XXXXX00001");
 
-    List<string> availablePaymentMethods = new List<string>();
-    availablePaymentMethods.Add("1");
-    availablePaymentMethods.Add("42");
-    operationData.Add(ElementNames.BSA_AVAILABLE_PAYMENT_METHODS, availablePaymentMethods);
-
-	List<string> availableBanks = new List<string>();
-	availableBanks.Add("6");
-	availableBanks.Add("24");
-	availableBanks.Add("29");
-	operationData.Add(ElementNames.BVG_AVAILABLE_BANK, availableBanks);
-
-    Dictionary<string, Object> technicalData = new Dictionary<string, Object>();
-    technicalData.Add(ElementNames.BSA_SDK, "Net");
-    technicalData.Add(ElementNames.BSA_SDK_VERSION, "1.0");
-    technicalData.Add(ElementNames.BSA_LANGUAGE_VERSION, "3.5");
-    technicalData.Add(ElementNames.BSA_PLUGIN_VERSION, "1.0");
-    technicalData.Add(ElementNames.BSA_ECOMMERCE_NAME, "Bla");
-    technicalData.Add(ElementNames.BSA_ECOMMERCE_VERSION, "3.1");
-    technicalData.Add(ElementNames.BSA_CM_VERSION, "2.4");
-
-    TransactionBVG trasactionBVG = new TransactionBVG(generalData, operationData, technicalData);
+    NotificationPushBVG notificationPushBVG = new NotificationPushBVG(generalData, operationData, tokenizationData);
 
 
 try{
 
-    trasactionBVG = connector.transaction(trasactionBVG);
+    trasactionBVG = connector.transaction(NotificationPushBVG);
 	Dictionary<string, Object> dic = trasactionBVG.toDictionary();
 
 }catch (EmptyFieldException ex){
