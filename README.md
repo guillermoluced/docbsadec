@@ -1,10 +1,10 @@
-### Integracion de BSA con Decidir
+## Integracion de BSA con Decidir
 
 Este documento explicara como integrar BSA con Decidir utilizando .NET.
 El siguiente diagrama explica el flujo de la implementación.
 
 
-#### Diagrama de secuencia
+### Diagrama de secuencia
 ![Diagrama de secuencia](img/bsa-decidir-secuence.png)
 
 Etapas de integración BSA con Decidir
@@ -23,7 +23,7 @@ Para operar en Todopago es necesario tener credenciales de Todopago, Nro. de Com
 Por parte de Decidir es necesario tener dada de alta una tienda y obtener las credenciales "Publickey" y Privatekey.
 
 <a name="transaction"></a>
-#### Servicio Transaction
+### Servicio Transaction
 El primer paso es registrar una transaccion con el servicio [Transaction](#https://github.com/TodoPago/SDK-NET-BilleteraVirtualGateway#bvg-transaction) del  SDK de Todopago. Este requiere el Merchant y API Key de Todopago.
 
 
@@ -55,7 +55,7 @@ El primer paso es registrar una transaccion con el servicio [Transaction](#https
 
 
 
-#####  Ejemplo de implementacion
+####  Ejemplo de implementacion
 ```C#
     Dictionary<string, Object> generalData = new Dictionary<string, Object>();
     generalData.Add(ElementNames.BSA_MERCHANT, "41702");
@@ -92,7 +92,7 @@ El primer paso es registrar una transaccion con el servicio [Transaction](#https
 
     TransactionBVG trasactionBVG = new TransactionBVG(generalData, operationData, technicalData);
 ```
-#####  Respuesta
+####  Respuesta
 
 La respuesta tiene el atributo **publicRequestKey**, este requerido en el formulario de Todopago.
 
@@ -104,7 +104,7 @@ Dictionary<string, Object>()
 	    }
 ```
 <a name="formtp"></a>
-#### Formulario TP de pago
+### Formulario TP de pago
 
 Luego de Transaction se debe utilizar formulario provisto por Todopago, este se puede implementar como se indica en el ejemplo. 
 Para funcionar requiere ingresar en el atributo "publicKey" el **publicRequestKey** que respondió el servicio "Transaction".
@@ -113,11 +113,11 @@ Campo       | Descripción           | Tipo de dato | Ejemplo
 ------------|-----------------------|--------------|--------
 publicKey   | publicKey: "requestpublickey",  | String | 066aee1a-c36b-45f2-b827-d20a0d807284
 
-##### Endpoints:
+#### Endpoints:
 + Ambientes desarrollo: https://forms.integration.todopago.com.ar/resources/TPBSAForm.js
 + Ambiente Produccion: https://forms.todopago.com.ar/resources/TPBSAForm.min.js
 
-#####  Ejemplo de implementacion
+####  Ejemplo de implementacion
 ```html
 
 <html>
@@ -155,7 +155,7 @@ El formulario mostrara una ventana de login para ingresar el usuario de billeter
 
 ![login](img/login-formulario-tp.png)
 
-#####  Respuesta
+####  Respuesta
 Si la compra fue aprobada el formulario devolverá un JSON con la siguiente estructura.
 ```html
 {
@@ -189,7 +189,7 @@ Si la compra fue aprobada el formulario devolverá un JSON con la siguiente estr
 > **Nota:** Los campos queridos por decidir son el "Token" y "VOLATILE_ENCRYPTED_DATA".
 
 <a name="tokendecidir"></a>
-####  Solicitud de Token de Pago para BSA en Decidir
+###  Solicitud de Token de Pago para BSA en Decidir
 
 Para implementar los servicios de Decidir en NET se debe descargar la ultima versión del SDK [SDK NET Decidir](https://github.com/decidir/sdk-.net-v2). Ademas es necesario ingresar las claves publicas y privadas provistas por Decidir.
 Luego de importar el SDK en el proyecto e instanciar el SDK, se debe llamar el servicio **tokens** para obtener el token de pago de Decidir.
@@ -227,7 +227,7 @@ catch (ResponseException)
 
 }
 ```
-##### Respuesta:
+#### Respuesta:
 ```C#
 
 
@@ -235,11 +235,11 @@ catch (ResponseException)
 > **Nota:** El servicio Payment requiere el token generado que devuelve el campo **id** ".
 
 <a name="pagodecidir"></a>
-#### Ejecución del Pago para BSA en Decidir
+### Ejecución del Pago para BSA en Decidir
 
 Luego de generar el Token de pago con el servicio anterior se deberá ejecutar la solicitud de pago de la siguiente manera. Ingresando en "token" el **token** de pago previamente generado en el servicio anterior.
 
-##### Ejemplo:
+#### Ejemplo:
 
 ```C#
 string privateApiKey = "92b71cf711ca41f78362a7134f87ff65";
@@ -273,7 +273,7 @@ catch (ResponseException)
 
 ```
 
-##### Respuesta:
+#### Respuesta:
 ```C#
 
 
@@ -281,7 +281,7 @@ catch (ResponseException)
 > **Nota:** Los datos necesario para el servicio Push son **status**, **ticket**, **authorization**.
 
 <a name="pushnotification"></a>
-#### Notification Push
+### Notification Push
 
 Registra la fiscalización de una transacción. El método retorna el objeto NotificationPushBVG con el resultado de la notificación. Para funcionar requiere los siguientes campo:
 <table>
@@ -309,7 +309,7 @@ Ejemplo: TODOPAGO 3560b2f82b0f4860b8360dcd693058a9 </td></tr>
 </table>
 
 
-##### Ejemplo:
+#### Ejemplo:
 
 ```C#
 BvgConnector connector = new BvgConnector(endpoint, headers);
@@ -355,7 +355,7 @@ try{
 }
 
 ```
-##### Respuesta:
+#### Respuesta:
 ```C#
 
 Dictionary<string, Object>() = notificationPushBVG.toDictionary();
