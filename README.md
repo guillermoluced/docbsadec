@@ -1,6 +1,6 @@
 ## Integracion de BSA con Decidir
 
-Este documento explicara como integrar BSA con Decidir utilizando .NET.
+Este documento explicará como integrar BSA con Decidir utilizando .NET.
 El siguiente diagrama explica el flujo de la implementación.
 
 
@@ -8,6 +8,7 @@ El siguiente diagrama explica el flujo de la implementación.
 ![Diagrama de secuencia](img/bsa-decidir-secuence.png)
 
 Etapas de integración BSA con Decidir
++ [Servicio Discover](#discover)
 + [Servicio Transaction](#transaction)
 + [Formulario TP de pago](#formtp)
 + [Solicitud de Token de Pago para BSA en Decidir](#tokendecidir)
@@ -17,10 +18,40 @@ Etapas de integración BSA con Decidir
 ####  Requerimientos
 Tanto Todopago como Decidir tienen disponible una SDK de NET que permite utilizar los servicios requeridos. Se pueden obtener desde:
 + Todopago SDK: https://github.com/TodoPago/SDK-NET-BilleteraVirtualGateway
-+ Decidir SDK: https://github.com/decidir/sdk-.net-webtx-v2 
++ Decidir SDK: https://github.com/decidir/sdk-.net-v2
 
 Para operar en Todopago es necesario tener credenciales de Todopago, Nro. de Comercio (Merchant ID) y Credenciales (API Keys). 
 Por parte de Decidir es necesario tener dada de alta una tienda y obtener las credenciales "Publickey" y Privatekey.
+
+<a name="discover"></a>
+### Servicio Discover
+La SDK cuenta con un método para consultar los medios de pago disponibles para realizar un pago.
+
+####  Ejemplo de implementación
+```C#
+	$rta = $connector->billeteraVirtualGateway()->discover();
+```
+####  Respuesta
+
+```C#
+object(TodoPago\BilleteraVirtualGateway\PaymentMethod) (5) {
+      ["idMedioPago":protected]=>
+      string(2) "42"
+      ["nombre":protected]=>
+      string(4) "VISA"
+      ["tipoMedioPago":protected]=>
+      string(8) "Crédito"
+      ["idBanco":protected]=>
+      string(4) "52"
+      ["nombreBanco":protected]=>
+      string(100) "BANCO BICA"
+    }
+```
+<a name="idmediopago"></a>
+<a name="nombreBanco"></a>
+El campo **idMedioPago**,  sera utilizado al momento de momento de llamar al servicio [Transaction](#transaction) en el campo **paymentMethodId** del Request.
+El **nombreBanco** sera requerido en **bankId** del Request del servicio [Transaction](#transaction).
+
 
 <a name="transaction"></a>
 ### Servicio Transaction
@@ -32,17 +63,17 @@ El primer paso es registrar una transaccion con el servicio [Transaction](#https
 
 <table>
 <tr><th>Nombre del campo</th><th>Required/Optional</th><th>Data Type</th><th>Comentarios</th></tr>
+<tr><td>merchant</td><td>Required</td><td>String</td><td>ID de cuenta del vendedor. Ejemplo: 75087</td></tr>
 <tr><td>security</td><td>Required</td><td>String</td><td>Authorization que deberá contener el valor del api key de la cuenta del vendedor. Ejemplo: TODOPAGO 3560b2f82b0f4860b8360dcd693058a9</td></tr>
 <tr><td>operationDatetime</td><td>Required</td><td>String</td><td>Fecha Hora de la invocacion en Formato yyyyMMddHHmmssSSS</td></tr>
 <tr><td>remoteIpAddress</td><td>Required</td><td>String</td><td>IP desde la cual se envía el requerimiento</td></tr>
-<tr><td>merchant</td><td>Required</td><td>String</td><td>ID de cuenta del vendedor. Ejemplo: 75087</td></tr>
 <tr><td>operationType</td><td>Optional</td><td>String</td><td>Valor fijo definido para esta operatoria de integración</td></tr>
 <tr><td>operationID</td><td>Required</td><td>String</td><td>ID de la operación en el eCommerce</td></tr>
 <tr><td>currencyCode</td><td>Required</td><td>String</td><td>Valor fijo 32</td></tr>
 <tr><td>concept</td><td>Optional</td><td>String</td><td>Especifica el concepto de la operación</td></tr>
 <tr><td>amount</td><td>Required</td><td>String</td><td>Formato 999999999,99</td></tr>
-<tr><td>availablePaymentMethods</td><td>Optional</td><td>Array</td><td>Array de Strings obtenidos desde el servicio de descubrimiento de medios de pago. Lista de ids de Medios de Pago habilitados para la transacción. Si no se envía están habilitados todos los Medios de Pago del usuario.</td></tr>
-<tr><td>availableBanks</td><td>Optional</td><td>Array</td><td>Array de Strings obtenidos desde el servicio de descubrimiento de medios de pago. Lista de ids de Bancos habilitados para la transacción. Si no se envía están habilitados todos los bancos del usuario. Ejemplo: 42</td></tr>
+<tr><td> availablePaymentMethods  </td><td>Optional</td><td>Array</td><td>Este campo se obtiene campo idMedioPago del request del servicio Discover. Si no se envía están habilitados todos los Medios de Pago del usuario.</td></tr>
+<tr><td>availableBanks</td><td>Optional</td><td>Array</td><td>Este campo se obtiene campo idBanco del request del servicio Discover. Si no se envía están habilitados todos los bancos del usuario. Ejemplo: 42</td></tr>
 <tr><td>buyerPreselection</td><td>Optional</td><td>BuyerPreselection</td><td>Preselección de pago del usuario. Ejemplo: 1</td></tr>
 <tr><td>sdk</td><td>Optional</td><td>String</td><td>Parámetro de versión de API</td></tr>
 <tr><td>sdkversion</td><td>Optional</td><td>String</td><td>Parámetro de versión de API</td></tr>
@@ -92,10 +123,14 @@ El primer paso es registrar una transaccion con el servicio [Transaction](#https
 
     TransactionBVG trasactionBVG = new TransactionBVG(generalData, operationData, technicalData);
 ```
+Este servicio requiere los siguientes atributos de la respuesta servicio Discover:
++ [idMedioPago](#idmediopago) para el campo "availablePaymentMethods.add('1')"
++ [nombreBanco](#nombreBanco) para el campo "availablePaymentMethods.Add('42')"
+
 ####  Respuesta
 
 La respuesta tiene el atributo **publicRequestKey**, este requerido en el formulario de Todopago.
-
+<a name="publicRequestKey"></a>
 ```C#
 Dictionary<string, Object>()
 		{  publicRequestKey = "0e6d1f45-a85e-480f-a98f-5f18cf881b9b", //string(36)
@@ -111,10 +146,10 @@ Para funcionar requiere ingresar en el atributo "publicKey" el **publicRequestKe
 
 Campo       | Descripción           | Tipo de dato | Ejemplo
 ------------|-----------------------|--------------|--------
-publicKey   | publicKey: "requestpublickey",  | String | 066aee1a-c36b-45f2-b827-d20a0d807284
+publicKey   | requestpublickey del request del servicio Transaction  | String | 066aee1a-c36b-45f2-b827-d20a0d807284
 
 #### Endpoints:
-+ Ambientes desarrollo: https://forms.integration.todopago.com.ar/resources/TPBSAForm.js
++ Ambientes de pruebas: https://forms.integration.todopago.com.ar/resources/TPBSAForm.js
 + Ambiente Produccion: https://forms.todopago.com.ar/resources/TPBSAForm.min.js
 
 ####  Ejemplo de implementacion
@@ -151,12 +186,19 @@ publicKey   | publicKey: "requestpublickey",  | String | 066aee1a-c36b-45f2-b827
 	</body>
 </html>
 ```
-El formulario mostrara una ventana de login para ingresar el usuario de billetera de la cuenta de Todopago
+El formulario requiere obligatoriamente ingresar en el campo **publicKey** dentro del "window.TPFORMAPI.hybridForm.initBSA", el atributo [publicRequestKey](#publicRequestKey) que devuelve request del servicio [Transaction](#transaction).
+
+Al cargar el formulario se mostrara una ventana de Login para ingresar el usuario de billetera.
 
 ![login](img/login-formulario-tp.png)
 
+Luego de loguearse el formulario mostrara la lista de medios de pago habilitados.
+
+![formulario](img/formulario-bsa_medios_pago.png)
+
 ####  Respuesta
 Si la compra fue aprobada el formulario devolverá un JSON con la siguiente estructura.
+<a name="formularioresponse"></a>
 ```html
 {
 "ResultCode":1,
@@ -186,19 +228,19 @@ Si la compra fue aprobada el formulario devolverá un JSON con la siguiente estr
 "BSA":true
 } 
 ```
-> **Nota:** Los campos queridos por decidir son el "Token" y "VOLATILE_ENCRYPTED_DATA".
+Los atributos **Token** y **VOLATILE_ENCRYPTED_DATA** serán requeridos por el siguiente servicio [payment de Decidir](#tokendecidir).
 
 <a name="tokendecidir"></a>
 ###  Solicitud de Token de Pago para BSA en Decidir
 
-Para implementar los servicios de Decidir en NET se debe descargar la ultima versión del SDK [SDK NET Decidir](https://github.com/decidir/sdk-.net-v2). Ademas es necesario ingresar las claves publicas y privadas provistas por Decidir.
-Luego de importar el SDK en el proyecto e instanciar el SDK, se debe llamar el servicio **tokens** para obtener el token de pago de Decidir.
+Para implementar los servicios de Decidir en NET se deberá descargar la ultima versión del SDK [SDK NET Decidir](https://github.com/decidir/sdk-.net-v2). Ademas es necesario tener disponibles las claves publicas y privadas provistas por Decidir.
+Luego de importar el SDK en el proyecto e instanciar el SDK, se debe llamar a este servicio para obtener el token de pago de Decidir.
 
 Campo       | Descripción           | Tipo de dato | Ejemplo
 ------------|-----------------------|--------------|--------
-public_token| Este se obtiene en la respuesta del formulario de pago de Todopago | String     | 4507994025297787
-volatile_encrypted_data| Este se obtiene en la respuesta del formulario de pago de Todopago | String     | YRfrWggICAggsF0nR6ViuAgWsPr5ouR5knIbPtkN+yntd7G6FzN/Xb8zt6+QHnoxmpTraKphZVHvxA==
-public_request_key| Este se obtiene a partir del publicRequestKey, en la respuesta del servicio Transaction | String | publicRequestKey
+public_token| Campo String que se obtiene en la respuesta del formulario de pago de Todopago ("Token":"4507991692027787")| String     | 4507994025297787
+volatile_encrypted_data| Este se obtiene en la respuesta del formulario de pago de Todopago ("VOLATILE_ENCRYPTED_DATA": "YRfrWggICAggsF0nR6ViuAgWsPr5ouR5knIbPtkN+yntd7G6FzN/Xb8zt6+QHnoxmpTraKphZVHvxA==")| String     | YRfrWggICAggsF0nR6ViuAgWsPr5ouR5knIbPtkN+yntd7G6FzN/Xb8zt6+QHnoxmpTraKphZVHvxA==
+public_request_key| Este se obtiene a partir del publicRequestKey, en la respuesta del servicio Transaction (publicRequestKey = "0e6d1f45-a85e-480f-a98f-5f18cf881b9b")| String | publicRequestKey
 flag_security_code|  | String     | 0
 flag_tokenization|  | String     | 0
 flag_selector_key|  | String     | 1
@@ -213,8 +255,8 @@ fraud_detection.device_unique_identifier | Numero unico de identificacion | Stri
 string privateApiKey = "92b71cf711ca41f78362a7134f87ff65";
 string publicApiKey = "e9cdb99fff374b5f91da4480c8dca741";
 
-//AMBIENTE_SANDBOX
-//AMBIENTE_PRODUCCION
+//Ambiente.AMBIENTE_SANDBOX
+//Ambiente.AMBIENTE_PRODUCCION
 //Para el ambiente de desarrollo
 DecidirConnector decidir = new DecidirConnector(Ambiente.AMBIENTE_SANDBOX, privateApiKey, publicApiKey);
 
@@ -242,6 +284,11 @@ catch (ResponseException)
 
 }
 ```
+Este servicio requiere los siguientes atributos de la respuesta del Formulario de pago Todopago y del servicio Transaction:
++ [Token](#formularioresponse) para el campo "availablePaymentMethods.add('1')"
++ [VOLATILE_ENCRYPTED_DATA](#formularioresponse) para el campo "tokensData.volatile_encrypted_data"
++ [publicRequestKey](#publicRequestKey) para el campo "tokensData.public_request_key"
+<a name="tokenresponse"></a>
 #### Respuesta:
 ```C#
 {
@@ -266,7 +313,7 @@ catch (ResponseException)
 	}
 }
 ```
-> **Nota:** El servicio Payment requiere el token generado que devuelve el campo **id** ".
+El servicio [Decidir Payment](#pagodecidir) requiere el token devuelto en el Request en el campo **id** :"708fe42a-c8f9-4468-8029-6d06dc3fca9a".
 
 <a name="pagodecidir"></a>
 ### Ejecución del Pago para BSA en Decidir
@@ -282,7 +329,7 @@ Luego de generar el Token de pago con el servicio anterior se deberá ejecutar l
 |ip_address  | IP del comercio | Condicional |Sin validacion   | ip_address: "192.168.100.2",  |
 |site_transaction_id   | nro de operacion  |SI   | Alfanumerico de hasta 39 caracteres  | "prueba 1"  |
 | site_id  |Site relacionado a otro site, este mismo no requiere del uso de la apikey ya que para el pago se utiliza la apikey del site al que se encuentra asociado.   | NO  | Se debe encontrar configurado en la tabla site_merchant como merchant_id del site_id  | 28464385  |
-| token  | token generado en el primer paso  |SI   |Alfanumerico de hasta 36 caracteres. No se podra ingresar un token utilizado para un  pago generado anteriormente.   | ""  |
+| token  | token generado en el servicio token de Decidir, se puede obtener desde el campo id de la respuesta. Ejemplo: "id" : "708fe42a-c8f9-4468-8029-6d06dc3fca9a"  |SI   |Alfanumerico de hasta 36 caracteres. No se podra ingresar un token utilizado para un  pago generado anteriormente.   | ""  |
 | payment_method_id  | id del medio de pago  |SI  |El id debe coincidir con el medio de pago de tarjeta ingresada.Se valida que sean los primeros 6 digitos de la tarjeta ingresada al generar el token.    | payment_method_id: 1,  |
 |bin   |primeros 6 numeros de la tarjeta   |SI |Importe minimo = 1 ($0.01)  |bin: "456578"  |
 |amount  |importe del pago   |  SI| Importe Maximo = 9223372036854775807 ($92233720368547758.07) |amount=20000  |
@@ -325,7 +372,10 @@ catch (ResponseException)
 }
 
 ```
+Este servicio requiere el siguiente atributo de la respuesta del servicio [Token](#tokendecidir) de Decidir:
++ [id](#tokenresponse) para el campo "payment.token"
 
+<a name="pagodecidirresponse"></a>
 #### Respuesta:
 ```C#
 {
@@ -365,7 +415,7 @@ catch (ResponseException)
     "card_data": "/tokens/1391404"
 }
 ```
-> **Nota:** Los datos necesarios para el servicio Push son **status**, **ticket**, **authorization**.
+Los datos necesarios para el siguiente servicio [Notification Push](#pushnotification) son **status**, **ticket**, **authorization**.
 
 <a name="pushnotification"></a>
 ### Notification Push
@@ -377,7 +427,7 @@ Registra la fiscalización de una transacción. El método retorna el objeto Not
 Ejemplo: TODOPAGO 3560b2f82b0f4860b8360dcd693058a9 </td></tr>
 <tr><td>Merchant</td><td>Required</td><td>String</td><td>ID de cuenta del comercio de Todopago</td></tr>
 <tr><td>RemoteIpAddress</td><td>Optional</td><td>String</td><td>IP desde la cual se envía el requerimiento</td></tr>
-<tr><td>PublicRequestKey</td><td>Required</td><td>String</td><td>El publicRequestKey se obtiene en la respuesta del servicio Transaction. Ejemplo:  710268a7-7688-c8bf-68c9-430107e6b9da</td></tr>
+<tr><td>PublicRequestKey</td><td>Required</td><td>String</td><td>El publicRequestKey se obtiene en la respuesta del servicio Transaction. Ejemplo:  publicRequestKey: 710268a7-7688-c8bf-68c9-430107e6b9da</td></tr>
 <tr><td>OperationName</td><td>Required</td><td>String</td><td>Valor que describe la operación a realizar, debe ser fijo entre los siguientes valores: “Compra”, “Devolucion” o “Anulacion”</td></tr>
 <tr><td>ResultCodeMedioPago</td><td>Optional</td><td>String</td><td>Código de respuesta de la operación propocionado por el medio de pago</td></tr>
 <tr><td>ResultCodeGateway</td><td>Optional</td><td>String</td><td>Código de respuesta de la operación propocionado por el gateway</td></tr>
@@ -442,6 +492,13 @@ try{
 }
 
 ```
+Este servicio requiere los siguientes atributos de la respuesta del servico Transaction, Formulario de pag Todopago y servicio Payment de Decidir2:
++ [publicRequestKey](#publicRequestKey) para el campo "generalData.Add(ElementNames.BVG_PUBLIC_REQUEST_KEY,"")"
++ [Token](#formularioresponse) para el campo "tokenizationData.Add(ElementNames.BVG_PUBLIC_TOKENIZATION_FIELD. "")"
++ [ticket](#pagodecidirresponse) para el campo "operationData.Add(ElementNames.BVG_TICKET_MUNBER, "")"
++ [status](#pagodecidirresponse) para el campo "operationData.Add(ElementNames.BVG_RESULT_MESSAGE, "")"
++ [authorization](#pagodecidirresponse) para el campo "operationData.Add(ElementNames.BVG_CODIGO_AUTORIZATION, "")"
+
 #### Respuesta:
 ```C#
 
@@ -452,4 +509,5 @@ Dictionary<string, Object>() = notificationPushBVG.toDictionary();
 }
 
 ```
+
 
