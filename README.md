@@ -95,24 +95,26 @@ Ambiente Produccion: https://forms.todopago.com.ar/resources/TPBSAForm.min.js
         <script type="text/javascript">
         </script>
     </head>
-    <script>
-        var success = function(data) {
-            console.log(data);
-        };
-        var error = function(data) {
-            console.log(data);
-        };
-        var validation = function(data) {
-            console.log(data);
-        }
-        window.TPFORMAPI.hybridForm.initBSA({
-            publicKey: "requestpublickey",
-            merchantAccountId: "merchant",
-            callbackCustomSuccessFunction: "success",
-            callbackCustomErrorFunction: "error",
-            callbackValidationErrorFunction: "validation"
-        });
-    </script>
+	<body>
+	    <script>
+		var success = function(data) {
+		    console.log(data);
+		};
+		var error = function(data) {
+		    console.log(data);
+		};
+		var validation = function(data) {
+		    console.log(data);
+		}
+		window.TPFORMAPI.hybridForm.initBSA({
+		    publicKey: "requestpublickey",
+		    merchantAccountId: "merchant",
+		    callbackCustomSuccessFunction: "success",
+		    callbackCustomErrorFunction: "error",
+		    callbackValidationErrorFunction: "validation"
+		});
+	    </script>
+	</body>
 </html>
 ```
 El formulario mostrara una ventana de login para ingresar el usuario de billetera de la cuenta de Todopago
@@ -169,18 +171,18 @@ DecidirConnector decidir = new DecidirConnector(Ambiente.AMBIENTE_SANDBOX, priva
 
 Tokens tokensData = new Tokens();
 
-tokens.public_token = "4507994025297787";
-tokens.volatile_encrypted_data = "YRfrWggICAggsF0nR6ViuAgWsPr5ouR5knIbPtkN+yntd7G6FzN/Xb8zt6+QHnoxmpTraKphZVHvxA==";
-tokens.public_request_key = "12345678";
-tokens.issue_date = "123123123123";
-tokens.flag_security_code = "0";
-tokens.flag_tokenization = "0";
-tokens.flag_selector_key = "1";
-tokens.flag_pei = "1";
-tokens.card_holder_name = "Horacio";
-tokens.card_holder_identification.type = "single";
-tokens.card_holder_identification.number = "23968498";
-tokens.fraud_detection.device_unique_identifier = "12345";
+tokensData.public_token = "4507994025297787";
+tokensData.volatile_encrypted_data = "YRfrWggICAggsF0nR6ViuAgWsPr5ouR5knIbPtkN+yntd7G6FzN/Xb8zt6+QHnoxmpTraKphZVHvxA==";
+tokensData.public_request_key = "12345678";
+tokensData.issue_date = "123123123123";
+tokensData.flag_security_code = "0";
+tokensData.flag_tokenization = "0";
+tokensData.flag_selector_key = "1";
+tokensData.flag_pei = "1";
+tokensData.card_holder_name = "Horacio";
+tokensData.card_holder_identification.type = "single";
+tokensData.card_holder_identification.number = "23968498";
+tokensData.fraud_detection.device_unique_identifier = "12345";
 
 try
 {
