@@ -5,7 +5,7 @@ El siguiente diagrama explica el flujo de la implementación.
 
 
 ### Diagrama de secuencia
-![Diagrama de secuencia](img/bsa-decidir-secuence.png)
+![Diagrama de secuencia](https://raw.githubusercontent.com/guillermoluced/docbsadec/master/img/bsa-decidir-secuence.png)
 
 Etapas de integración BSA con Decidir
 + [Servicio Discover](#discover)
@@ -190,11 +190,11 @@ El formulario requiere obligatoriamente ingresar en el campo **publicKey** dentr
 
 Al cargar el formulario se mostrara una ventana de Login para ingresar el usuario de billetera.
 
-![login](img/login-formulario-tp.png)
+![login](https://raw.githubusercontent.com/guillermoluced/docbsadec/master/img/formulario-bsa_medios_pago.png)
 
 Luego de loguearse el formulario mostrara la lista de medios de pago habilitados.
 
-![formulario](img/formulario-bsa_medios_pago.png)
+![formulario](https://raw.githubusercontent.com/guillermoluced/docbsadec/master/img/login-formulario-tp.png)
 
 ####  Respuesta
 Si la compra fue aprobada el formulario devolverá un JSON con la siguiente estructura.
