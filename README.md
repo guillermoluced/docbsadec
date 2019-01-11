@@ -3,7 +3,16 @@
 Este documento explicara como integrar BSA con Decidir utilizando .NET.
 El siguiente diagrama indicia el flujo de la implementacion.
 
+
+#### Diagram de secuencia
 ![Diagrama de secuencia](img/bsa-decidir-secuence.png)
+
+Etapas de integracion BSA con Decidir
++ [Servicio Transaction](#transaction)
++ [Formulario TP de pago](#formtp)
++ [Solicitud de Token de Pago para BSA en Decidir](#tokendecidir)
++ [Ejecución del Pago para BSA en Decidir](#pagodecidir)
++ [##### Notificacion Push](#pushnotification)
 
 ####  Requerimientos
 Tanto Todopago como Decidir tiene su SDK de NET que permite utilizar los servicios requeridos. Se pueden obtener desde:
@@ -13,6 +22,7 @@ Decidir SDK: https://github.com/decidir/sdk-.net-webtx-v2
 Para operar en Todopago es necesario tener credenciales de Todopago, Nro. de Comercio (Merchant ID) y Credenciales (API Keys). 
 Por parte de Decidir es necesario tener dada de alta una tienda y obtener las credenciales "Publickey" y Privatekey.
 
+<a name="transaction"></a>
 #### Servicio Transaction
 El primer paso es registrar una transaccion con el servicio [Transaction](#https://github.com/TodoPago/SDK-NET-BilleteraVirtualGateway#bvg-transaction) del  SDK de Todopago. Este requiere el Merchant y API Key de Todopago.
 
@@ -63,7 +73,7 @@ Dictionary<string, Object>()
    		   channel = "11" //string(2)
 	    }
 ```
-
+<a name="formtp"></a>
 #### Formulario TP de pago
 
 Luego de Transaction se debe utilizar formulario provisto por Todopago, este se puede implementar como se indica en el ejemplo. 
@@ -141,7 +151,7 @@ Si la compra fue aprobada el formulario devolverá un JSON con la siguiente estr
 ```
 > **Nota:** Los campos queridos por decidir son el "Token" y "VOLATILE_ENCRYPTED_DATA".
 
-
+<a name="tokendecidir"></a>
 ####  Solicitud de Token de Pago para BSA en Decidir
 
 Para implementar los servicios de Decidir en NET se debe descargar la ultima versión del SDK [SDK NET Decidir](https://github.com/decidir/sdk-.net-v2). Ademas es necesario ingresar las claves publicas y privadas provistas por soporte de Decidir al dar de Alta la tienda.
@@ -185,7 +195,8 @@ catch (ResponseException)
 
 ```
 > **Nota:** El servicio Payment requiere el token generado que devuelve el campo **id** ".
-
+> 
+<a name="pagodecidir"></a>
 #### Ejecución del Pago para BSA en Decidir
 
 Luego de generar el Token de pago con el servicio anterior se deberá ejecutar la solicitud de pago de la siguiente manera. Ingresando en "token" el token de pago previamente generado.
@@ -230,10 +241,10 @@ catch (ResponseException)
 
 ```
 
-
+<a name="pushnotification"></a>
 #### Notification Push
 
-Permite registrar la fiscalización de una transacción. El método retorna el objeto NotificationPushBVG con el resultado de la notificación. Se utiliza de la siguiente manera:
+Registra la fiscalización de una transacción. El método retorna el objeto NotificationPushBVG con el resultado de la notificación. Se utiliza de la siguiente manera:
 
 ##### Ejemplo:
 
