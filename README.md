@@ -249,7 +249,31 @@ catch (ResponseException)
 <a name="pushnotification"></a>
 #### Notification Push
 
-Registra la fiscalización de una transacción. El método retorna el objeto NotificationPushBVG con el resultado de la notificación. Se utiliza de la siguiente manera:
+Registra la fiscalización de una transacción. El método retorna el objeto NotificationPushBVG con el resultado de la notificación. Para funcionar requiere los siguientes campo:
+<table>
+<tr><th>Nombre del campo</th><th>Required/Optional</th><th>Data Type</th><th>Comentarios</th></tr>
+<tr><td>Security</td><td>Required</td><td>String</td><td>Authorization que deberá contener el valor del api key de la cuenta del vendedor (Merchant). Este dato viaja en el Header HTTP.
+Ejemplo: TODOPAGO 3560b2f82b0f4860b8360dcd693058a9 </td></tr>
+<tr><td>Merchant</td><td>Required</td><td>String</td><td>ID de cuenta del comercio de Todopago</td></tr>
+<tr><td>RemoteIpAddress</td><td>Optional</td><td>String</td><td>IP desde la cual se envía el requerimiento</td></tr>
+<tr><td>PublicRequestKey</td><td>Required</td><td>String</td><td>El publicRequestKey se obtiene en la respuesta del servicio Transaction. Ejemplo:  710268a7-7688-c8bf-68c9-430107e6b9da</td></tr>
+<tr><td>OperationName</td><td>Required</td><td>String</td><td>Valor que describe la operación a realizar, debe ser fijo entre los siguientes valores: “Compra”, “Devolucion” o “Anulacion”</td></tr>
+<tr><td>ResultCodeMedioPago</td><td>Optional</td><td>String</td><td>Código de respuesta de la operación propocionado por el medio de pago</td></tr>
+<tr><td>ResultCodeGateway</td><td>Optional</td><td>String</td><td>Código de respuesta de la operación propocionado por el gateway</td></tr>
+<tr><td>idGateway</td><td>Optional</td><td>String</td><td>Id del Gateway que procesó el pago. Si envían el resultCodeGateway, es obligatorio que envíen este campo. Ejemplo: 8</td></tr>
+<tr><td>ResultMessage</td><td>Optional</td><td>String</td><td>Detalle de respuesta de la operación.</td></tr>
+<tr><td>OperationDatetime</td><td>Required</td><td>String</td><td>Fecha Hora de la operación en el comercio en Formato yyyyMMddHHmmssMMM</td></tr>
+<tr><td>TicketNumber</td><td>Optional</td><td>String</td><td>Numero de ticket generado, este valor se obtiene desde la respuesta del servicio de pago de Decidir</td></tr>
+<tr><td>CodigoAutorizacion</td><td>Optional</td><td>String</td><td>Codigo de autorización de la operación, se obtiene desde la respuesta del servicio de pago de Decidir </td></tr>
+<tr><td>CurrencyCode</td><td>Required</td><td>String</td><td>Valor fijo 32</td></tr>
+<tr><td>OperationID</td><td>Required</td><td>String</td><td>ID de la operación en el eCommerce</td></tr>
+<tr><td>Amount</td><td>Required</td><td>String</td><td>Formato 999999999,99</td></tr>
+<tr><td>FacilitiesPayment</td><td>Required</td><td>String</td><td>Formato 99</td></tr>
+<tr><td>Concept</td><td>Optional</td><td>String</td><td>Especifica el concepto de la operación dentro del ecommerce</td></tr>
+<tr><td>PublicTokenizationField</td><td>Required</td><td>String</td><td>4507991692027787, este valor se obtiene en la respuesta del formulario de pago de Todopago</td></tr>
+<tr><td>CredentialMask</td><td>Optional</td><td>String</td><td>4507XXXXXXXX4905,  corresponsde a los primeros cuatro numeros de la tarjeta seguido por 8 X y los ultimos cuatro numeros de la tarjeta</td></tr>
+</table>
+
 
 ##### Ejemplo:
 
