@@ -446,7 +446,8 @@ try{
 ```C#
 
 Dictionary<string, Object>() = notificationPushBVG.toDictionary();
-{  statusCode = -1, //string(2)
+{  
+	statusCode = -1, //string(2)
 	statusMessage = OK //string(2)
 }
 
