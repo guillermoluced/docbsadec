@@ -1,21 +1,21 @@
 ### Integracion de BSA con Decidir
 
 Este documento explicara como integrar BSA con Decidir utilizando .NET.
-El siguiente diagrama indicia el flujo de la implementacion.
+El siguiente diagrama explica el flujo de la implementación.
 
 
-#### Diagram de secuencia
+#### Diagrama de secuencia
 ![Diagrama de secuencia](img/bsa-decidir-secuence.png)
 
-Etapas de integracion BSA con Decidir
+Etapas de integración BSA con Decidir
 + [Servicio Transaction](#transaction)
 + [Formulario TP de pago](#formtp)
 + [Solicitud de Token de Pago para BSA en Decidir](#tokendecidir)
 + [Ejecución del Pago para BSA en Decidir](#pagodecidir)
-+ [##### Notificacion Push](#pushnotification)
++ [Notificacion Push](#pushnotification)
 
 ####  Requerimientos
-Tanto Todopago como Decidir tiene su SDK de NET que permite utilizar los servicios requeridos. Se pueden obtener desde:
+Tanto Todopago como Decidir tienen disponible una SDK de NET que permite utilizar los servicios requeridos. Se pueden obtener desde:
 Todopago SDK: https://github.com/TodoPago/SDK-NET-BilleteraVirtualGateway
 Decidir SDK: https://github.com/decidir/sdk-.net-webtx-v2 
 
@@ -116,7 +116,8 @@ Ambiente Produccion: https://forms.todopago.com.ar/resources/TPBSAForm.min.js
 </html>
 ```
 El formulario mostrara una ventana de login para ingresar el usuario de billetera de la cuenta de Todopago
-[login](login-formulario-tp.png)
+
+![login](img/login-formulario-tp.png)
 
 #####  Respuesta
 Si la compra fue aprobada el formulario devolverá un JSON con la siguiente estructura.
@@ -154,8 +155,8 @@ Si la compra fue aprobada el formulario devolverá un JSON con la siguiente estr
 <a name="tokendecidir"></a>
 ####  Solicitud de Token de Pago para BSA en Decidir
 
-Para implementar los servicios de Decidir en NET se debe descargar la ultima versión del SDK [SDK NET Decidir](https://github.com/decidir/sdk-.net-v2). Ademas es necesario ingresar las claves publicas y privadas provistas por soporte de Decidir al dar de Alta la tienda.
-Luego de importarlo en el proyecto e instanciar el SDK, se debe llamar el servicio **/tokens** para obtener el token de pago de Decidir.
+Para implementar los servicios de Decidir en NET se debe descargar la ultima versión del SDK [SDK NET Decidir](https://github.com/decidir/sdk-.net-v2). Ademas es necesario ingresar las claves publicas y privadas provistas por Decidir.
+Luego de importar el SDK en el proyecto e instanciar el SDK, se debe llamar el servicio **tokens** para obtener el token de pago de Decidir.
 
 ```C#
 string privateApiKey = "92b71cf711ca41f78362a7134f87ff65";
@@ -177,8 +178,9 @@ tokens.flag_tokenization = "0";
 tokens.flag_selector_key = "1";
 tokens.flag_pei = "1";
 tokens.card_holder_name = "Horacio";
-tokens.card_holder_identification = "single";
-tokens.fraud_detection = "";
+tokens.card_holder_identification.type = "single";
+tokens.card_holder_identification.number = "23968498";
+tokens.fraud_detection.device_unique_identifier = "12345";
 
 try
 {
@@ -195,11 +197,11 @@ catch (ResponseException)
 
 ```
 > **Nota:** El servicio Payment requiere el token generado que devuelve el campo **id** ".
-> 
+
 <a name="pagodecidir"></a>
 #### Ejecución del Pago para BSA en Decidir
 
-Luego de generar el Token de pago con el servicio anterior se deberá ejecutar la solicitud de pago de la siguiente manera. Ingresando en "token" el token de pago previamente generado.
+Luego de generar el Token de pago con el servicio anterior se deberá ejecutar la solicitud de pago de la siguiente manera. Ingresando en "token" el **token** de pago previamente generado en el servicio anterior.
 
 ##### Ejemplo:
 
@@ -240,6 +242,7 @@ catch (ResponseException)
 
 
 ```
+> **Nota:** Los datos necesario para el servicio Push son **status**, **ticket**, **authorization**.
 
 <a name="pushnotification"></a>
 #### Notification Push
@@ -249,20 +252,54 @@ Registra la fiscalización de una transacción. El método retorna el objeto Not
 ##### Ejemplo:
 
 ```C#
-
 BvgConnector connector = new BvgConnector(endpoint, headers);
-	NotificationPushBVG notificationPushBVG = new NotificationPushBVG();
+
+Dictionary<string, Object> generalData = new Dictionary<string, Object>();
+    generalData.Add(ElementNames.BSA_MERCHANT, "41702");
+    generalData.Add(ElementNames.BSA_SECURITY, "TODOPAGO 8A891C0676A25FBF052D1C2FFBC82DEE");
+    generalData.Add(ElementNames.BSA_OPERATION_DATE_TIME, "20170308041300");
+    generalData.Add(ElementNames.BSA_REMOTE_IP_ADDRESS, "127.0.0.1");
+
+    Dictionary<string, Object> operationData = new Dictionary<string, Object>();
+    operationData.Add(ElementNames.BSA_OPERATION_TYPE, "Compra");
+    operationData.Add(ElementNames.BSA_OPERATION_ID, "12345");
+    operationData.Add(ElementNames.BSA_CURRENCY_CODE, "032");
+    operationData.Add(ElementNames.BSA_CONCEPT, "compra");
+    operationData.Add(ElementNames.BSA_AMOUNT, "10,99");
+
+    List<string> availablePaymentMethods = new List<string>();
+    availablePaymentMethods.Add("1");
+    availablePaymentMethods.Add("42");
+    operationData.Add(ElementNames.BSA_AVAILABLE_PAYMENT_METHODS, availablePaymentMethods);
+
+	List<string> availableBanks = new List<string>();
+	availableBanks.Add("6");
+	availableBanks.Add("24");
+	availableBanks.Add("29");
+	operationData.Add(ElementNames.BVG_AVAILABLE_BANK, availableBanks);
+
+    Dictionary<string, Object> technicalData = new Dictionary<string, Object>();
+    technicalData.Add(ElementNames.BSA_SDK, "Net");
+    technicalData.Add(ElementNames.BSA_SDK_VERSION, "1.0");
+    technicalData.Add(ElementNames.BSA_LANGUAGE_VERSION, "3.5");
+    technicalData.Add(ElementNames.BSA_PLUGIN_VERSION, "1.0");
+    technicalData.Add(ElementNames.BSA_ECOMMERCE_NAME, "Bla");
+    technicalData.Add(ElementNames.BSA_ECOMMERCE_VERSION, "3.1");
+    technicalData.Add(ElementNames.BSA_CM_VERSION, "2.4");
+
+    TransactionBVG trasactionBVG = new TransactionBVG(generalData, operationData, technicalData);
+
 
 try{
 
-notificationPushBVG = connector.notificationPush(notificationPushBVG);
-Dictionary<string, Object> dic = notificationPushBVG.toDictionary();
+    trasactionBVG = connector.transaction(trasactionBVG);
+	Dictionary<string, Object> dic = trasactionBVG.toDictionary();
 
 }catch (EmptyFieldException ex){
     Console.WriteLine(ex.Message);
-}catch (ResponseException ex){
+} catch (ResponseException ex) {
     Console.WriteLine(ex.Message);
-}catch (ConnectionException ex) {
+} catch (ConnectionException ex) {
     Console.WriteLine(ex.Message);
 }
 
