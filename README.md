@@ -16,8 +16,8 @@ Etapas de integración BSA con Decidir
 
 ####  Requerimientos
 Tanto Todopago como Decidir tienen disponible una SDK de NET que permite utilizar los servicios requeridos. Se pueden obtener desde:
-Todopago SDK: https://github.com/TodoPago/SDK-NET-BilleteraVirtualGateway
-Decidir SDK: https://github.com/decidir/sdk-.net-webtx-v2 
++ Todopago SDK: https://github.com/TodoPago/SDK-NET-BilleteraVirtualGateway
++ Decidir SDK: https://github.com/decidir/sdk-.net-webtx-v2 
 
 Para operar en Todopago es necesario tener credenciales de Todopago, Nro. de Comercio (Merchant ID) y Credenciales (API Keys). 
 Por parte de Decidir es necesario tener dada de alta una tienda y obtener las credenciales "Publickey" y Privatekey.
