@@ -2,10 +2,9 @@
 
 Este documento explicara como integrar BSA con Decidir utilizando .NET.
 El siguiente diagrama indicia el flujo de la implementacion.
-```
+
 ![Diagrama de secuencia](img/bsa-decidir-secuence.png)
 
-```
 ####  Requerimientos
 Tanto Todopago como Decidir tiene su SDK de NET que permite utilizar los servicios requeridos. Se pueden obtener desde:
 Todopago SDK: https://github.com/TodoPago/SDK-NET-BilleteraVirtualGateway
