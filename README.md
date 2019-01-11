@@ -194,6 +194,21 @@ Si la compra fue aprobada el formulario devolverá un JSON con la siguiente estr
 Para implementar los servicios de Decidir en NET se debe descargar la ultima versión del SDK [SDK NET Decidir](https://github.com/decidir/sdk-.net-v2). Ademas es necesario ingresar las claves publicas y privadas provistas por Decidir.
 Luego de importar el SDK en el proyecto e instanciar el SDK, se debe llamar el servicio **tokens** para obtener el token de pago de Decidir.
 
+Campo       | Descripción           | Tipo de dato | Ejemplo
+------------|-----------------------|--------------|--------
+public_token| Este se obtiene en la respuesta del formulario de pago de Todopago | String     | 4507994025297787
+volatile_encrypted_data| Este se obtiene en la respuesta del formulario de pago de Todopago | String     | YRfrWggICAggsF0nR6ViuAgWsPr5ouR5knIbPtkN+yntd7G6FzN/Xb8zt6+QHnoxmpTraKphZVHvxA==
+public_request_key| Este se obtiene a partir del publicRequestKey, en la respuesta del servicio Transaction | String | publicRequestKey
+flag_security_code|  | String     | 0
+flag_tokenization|  | String     | 0
+flag_selector_key|  | String     | 1
+flag_pei| Se define si PEI esta habilitado | String | 1
+card_holder_name| Nombre del titular de la tarjeta | String | "Pepe"
+card_holder_identification.type| tipo de identificacion | String | "dni"
+card_holder_identification.number| Numero de identificacion | String | "23968498"
+fraud_detection.device_unique_identifier | Numero unico de identificacion | String | "12345"
+
+#### Ejemplo de implementacion
 ```C#
 string privateApiKey = "92b71cf711ca41f78362a7134f87ff65";
 string publicApiKey = "e9cdb99fff374b5f91da4480c8dca741";
@@ -229,8 +244,27 @@ catch (ResponseException)
 ```
 #### Respuesta:
 ```C#
-
-
+{
+	{
+	   "id": "708fe42a-c8f9-4468-8029-6d06dc3fca9a",
+	   "status": "active",
+	   "card_number_length": 16,
+	   "date_created": "2019-01-11T12:12Z",
+	   "bin": "450799",
+	   "last_four_digits": "4905",
+	   "security_code_length": 0,
+	   "expiration_month": 8,
+	   "expiration_year": 19,
+	   "date_due": "2019-01-11T14:42Z",
+	   "cardholder": {
+	       "identification": {
+	           "type": "dni",
+	           "number": "33222444"
+	       },
+	       "name": "Comprador"
+	   }
+	}
+}
 ```
 > **Nota:** El servicio Payment requiere el token generado que devuelve el campo **id** ".
 
@@ -238,6 +272,25 @@ catch (ResponseException)
 ### Ejecución del Pago para BSA en Decidir
 
 Luego de generar el Token de pago con el servicio anterior se deberá ejecutar la solicitud de pago de la siguiente manera. Ingresando en "token" el **token** de pago previamente generado en el servicio anterior.
+
+*Aclaracion* : amount es un campo double el cual debería tener solo dos dígitos decimales.
+
+|Campo | Descripcion  | Oblig | Restricciones  |Ejemplo   |
+| ------------ | ------------ | ------------ | ------------ | ------------ |
+|id  | id usuario que esta haciendo uso del sitio, pertenece al campo customer (ver ejemplo)  |Condicional, si no se enviar el Merchant este campo no se envia  |Sin validacion   | user_id: "marcos",  |
+|email  | email del usuario que esta haciendo uso del sitio (se utiliza para tokenizacion), pertenece al campo customer(ver ejemplo)  |Condicional   |Sin validacion   | email: "user@mail.com",  |
+|ip_address  | IP del comercio | Condicional |Sin validacion   | ip_address: "192.168.100.2",  |
+|site_transaction_id   | nro de operacion  |SI   | Alfanumerico de hasta 39 caracteres  | "prueba 1"  |
+| site_id  |Site relacionado a otro site, este mismo no requiere del uso de la apikey ya que para el pago se utiliza la apikey del site al que se encuentra asociado.   | NO  | Se debe encontrar configurado en la tabla site_merchant como merchant_id del site_id  | 28464385  |
+| token  | token generado en el primer paso  |SI   |Alfanumerico de hasta 36 caracteres. No se podra ingresar un token utilizado para un  pago generado anteriormente.   | ""  |
+| payment_method_id  | id del medio de pago  |SI  |El id debe coincidir con el medio de pago de tarjeta ingresada.Se valida que sean los primeros 6 digitos de la tarjeta ingresada al generar el token.    | payment_method_id: 1,  |
+|bin   |primeros 6 numeros de la tarjeta   |SI |Importe minimo = 1 ($0.01)  |bin: "456578"  |
+|amount  |importe del pago   |  SI| Importe Maximo = 9223372036854775807 ($92233720368547758.07) |amount=20000  |
+|currency   |moneda   | SI|Valor permitido: ARS   | ARS  |
+|installments   |cuotas del pago   | SI|"Valor minimo = 1 Valor maximo = 99"     |  installments: 1 |
+|payment_type   |forma de pago   | SI| Valor permitido: single / distributed
+|"single"   |
+|establishment_name   |nombre de comercio |Condicional   | Alfanumerico de hasta 25 caracteres |  "Nombre establecimiento"  |
 
 #### Ejemplo:
 
@@ -275,10 +328,44 @@ catch (ResponseException)
 
 #### Respuesta:
 ```C#
-
-
+{
+    "id": 1391404,
+    "site_transaction_id": "110119_02",
+    "payment_method_id": 1,
+    "card_brand": "Visa",
+    "amount": 2000,
+    "currency": "ars",
+    "status": "approved",
+    "status_details": {
+        "ticket": "5746",
+        "card_authorization_code": "151936",
+        "address_validation_code": "VTE0011",
+        "error": null
+    },
+    "date": "2019-01-11T12:19Z",
+    "customer": {
+        "id": "user",
+        "email": "user@mail.com"
+    },
+    "bin": "450799",
+    "installments": 1,
+    "first_installment_expiration_date": null,
+    "payment_type": "single",
+    "sub_payments": [],
+    "site_id": "00030118",
+    "fraud_detection": {
+        "status": null
+    },
+    "aggregate_data": null,
+    "establishment_name": "prueba desa soft",
+    "spv": null,
+    "confirmed": null,
+    "pan": null,
+    "customer_token": "f2931755d7e472d2c553eef9026717a9cb3bb91185c6e44f6c02f8ac46b9659e",
+    "card_data": "/tokens/1391404"
+}
 ```
-> **Nota:** Los datos necesario para el servicio Push son **status**, **ticket**, **authorization**.
+> **Nota:** Los datos necesarios para el servicio Push son **status**, **ticket**, **authorization**.
 
 <a name="pushnotification"></a>
 ### Notification Push
@@ -359,9 +446,9 @@ try{
 ```C#
 
 Dictionary<string, Object>() = notificationPushBVG.toDictionary();
-		{  statusCode = -1, //string(2)
-           statusMessage = OK //string(2)
-	    }
+{  statusCode = -1, //string(2)
+	statusMessage = OK //string(2)
+}
 
 ```
 
