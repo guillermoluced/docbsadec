@@ -190,11 +190,11 @@ El formulario requiere obligatoriamente ingresar en el campo **publicKey** dentr
 
 Al cargar el formulario se mostrara una ventana de Login para ingresar el usuario de billetera.
 
-![login](https://raw.githubusercontent.com/guillermoluced/docbsadec/master/img/formulario-bsa_medios_pago.png)
+![login](https://raw.githubusercontent.com/guillermoluced/docbsadec/master/img/login-formulario-tp.png)
 
 Luego de loguearse el formulario mostrara la lista de medios de pago habilitados.
 
-![formulario](https://raw.githubusercontent.com/guillermoluced/docbsadec/master/img/login-formulario-tp.png)
+![formulario](https://raw.githubusercontent.com/guillermoluced/docbsadec/master/img/formulario-bsa_medios_pago.png)
 
 ####  Respuesta
 Si la compra fue aprobada el formulario devolverá un JSON con la siguiente estructura.
