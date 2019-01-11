@@ -3,7 +3,7 @@
 Este documento explicara como integrar BSA con Decidir utilizando .NET.
 El siguiente diagrama indicia el flujo de la implementacion.
 ```
-[Diagrama de secuencia](diagrama)
+![Diagrama de secuencia](img/bsa-decidir-secuence.png)
 
 ```
 ####  Requerimientos
